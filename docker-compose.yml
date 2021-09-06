@@ -1,0 +1,19 @@
+version: "3"
+services:
+  area-detector-zmq:
+    image: dpi/area-detector-zmq
+    build:
+      context: .
+      args: 
+        - BASE_IMAGE=prjemian/synapps-6.2
+        - AREA_DETECTOR_REPO=https://github.com/areaDetector/areaDetector.git
+        - AREA_DETECTOR_REPO_TAG=master
+        - ZMQ_REPO=https://github.com/paulscherrerinstitute/ADZMQ.git
+        - ZMQ_TAG=master
+    environment: 
+      - AD_PREFIX="ADSIM:"
+    #volumes:
+    #  - ./ophyd_AD_test:/tmp/ophyd_AD_test/
+    
+    command: bash -c "/opt/runADSimDetector.sh" # && tail -f /dev/null"
+    tty: true
