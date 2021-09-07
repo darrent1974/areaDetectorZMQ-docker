@@ -51,6 +51,7 @@ WORKDIR ${SUPPORT}
 
 ENV AD_TAG=${AREA_DETECTOR_REPO_TAG}
 ENV AREA_DETECTOR=${SUPPORT}/areaDetector-${AD_TAG}
+ENV ADZMQ=${AREA_DETECTOR}/ADZMQ
 
 # Clone passed areaDetector repo & tag
 RUN git clone -b ${AD_TAG} --single-branch ${AREA_DETECTOR_REPO} ./areaDetector-${AD_TAG} && \
@@ -62,13 +63,16 @@ WORKDIR ${AREA_DETECTOR}
 RUN git submodule update --init --recursive ADCore && \
     git submodule update --init --recursive ADSupport && \
     git submodule update --init --recursive ADSimDetector && \
-    git submodule update --init --recursive ADURL && \
-    git submodule update --init --recursive pvaDriver && \
-    git submodule update --init --recursive ADViewers && \
-    git submodule update --init --recursive ffmpegServer
+#    git submodule update --init --recursive ADURL && \
+#    git submodule update --init --recursive pvaDriver && \
+    git submodule update --init --recursive ADViewers
+#    git submodule update --init --recursive ffmpegServer
 
 # Clone ADZMQ into areaDetector modules
 RUN git clone -b ${ZMQ_TAG} --single-branch ${ZMQ_REPO}
+
+# Clone ADPluginEdge for testing
+#RUN git clone https://github.com/areaDetector/ADPluginEdge.git
 
 # Required edits to configure AD
 # recommended edits: https://areadetector.github.io/master/install_guide.html
@@ -104,10 +108,16 @@ RUN sed -i s:'areaDetector-3-10':'areaDetector-${AD_TAG}':g RELEASE_PRODS.local 
     sed -i s:'sscan-2-11-3':'sscan-R2-11-4':g RELEASE_PRODS.local && \
     sed -i s:'SUPPORT=/corvette/home/epics/devel':'SUPPORT=/opt/synApps/support':g RELEASE_PRODS.local
 
+# Testing
+#RUN sed -i s:'#ADPLUGINEDGE=':'ADPLUGINEDGE=':g RELEASE_PRODS.local 
+
 # RELEASE.local changes
 RUN sed -i s:'#ADSIMDETECTOR=':'ADSIMDETECTOR=':g RELEASE.local 
 #sed -i s:'#ADURL=':'ADURL=':g RELEASE.local && \
 #sed -i s:'#PVADRIVER=':'PVADRIVER=':g RELEASE.local
+
+# testing
+#RUN sed -i s:'#ADPLUGINEDGE=':'ADPLUGINEDGE=':g RELEASE.local 
 
 # Add ZMQ into RELEASE.local and RELEASE_PRODS.local (at an appropriate location)
 RUN sed -i '/^#ADRIXSCAM=.*/a ADZMQ=$(AREA_DETECTOR)\/ADZMQ' RELEASE.local && \
@@ -117,6 +127,12 @@ RUN sed -i '/^#ADRIXSCAM=.*/a ADZMQ=$(AREA_DETECTOR)\/ADZMQ' RELEASE.local && \
 WORKDIR ${AREA_DETECTOR}/ADCore/iocBoot
 RUN cp EXAMPLE_commonPlugins.cmd commonPlugins.cmd && \
     cp EXAMPLE_commonPlugin_settings.req commonPlugin_settings.req
+
+# Update
+#RUN sed -i s:'#file "NDEdge_settings.req"':'file "NDEdge_settings.req"':g commonPlugin_settings.req 
+#RUN sed -i s:'#NDEdgeConfigure':'NDEdgeConfigure':g commonPlugins.cmd
+#RUN sed -i s:'#dbLoadRecords("$(ADPLUGINEDGE)/db/NDEdge.template"':'dbLoadRecords("$(ADPLUGINEDGE)/db/NDEdge.template"':g commonPlugins.cmd
+#RUN sed -i s:'#set_requestfile_path("$(ADPLUGINEDGE)/edgeApp/Db")':'set_requestfile_path("$(ADPLUGINEDGE)/edgeApp/Db")':g commonPlugins.cmd
 
 # update commonPlugin_settings.req & commonPlugins.cmd
 #WORKDIR ${AREA_DETECTOR}/ADCore/iocBoot
@@ -131,16 +147,25 @@ RUN cp EXAMPLE_commonPlugins.cmd commonPlugins.cmd && \
 ENV IOCADSIMDETECTOR=${AREA_DETECTOR}/ADSimDetector/iocs/simDetectorIOC/iocBoot/iocSimDetector
 RUN ln -s ${IOCADSIMDETECTOR} ${SUPPORT}/iocSimDetector
 RUN ln -s ${IOCADSIMDETECTOR} /opt/iocSimDetector
-COPY run_simDetectorIOC ${IOCADSIMDETECTOR}/run
-COPY runADSimDetector.sh /opt/
+COPY ./workspace/simDetectorIOC/run_simDetectorIOC ${IOCADSIMDETECTOR}/run
+COPY ./workspace/simDetectorIOC/runADSimDetector.sh /opt/
 RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADSIMDETECTOR}/
 
-#ENV IOCADURL=${AREA_DETECTOR}/ADURL/iocs/urlIOC/iocBoot/iocURLDriver
-#RUN ln -s ${IOCADURL} ${SUPPORT}/iocURLDriver
-#RUN ln -s ${IOCADURL} /opt/iocURLDriver
-#COPY ioc_files/run_adUrlIOC ${IOCADURL}/run
-#RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADURL}/
-#COPY ioc_files/runADURL.sh /opt/
+# Create local files in ADZMQ configure
+WORKDIR ${ADZMQ}/configure
+RUN echo 'SUPPORT=/opt/synApps/support' >> RELEASE.local && \
+    echo 'EPICS_BASE='${EPICS_ROOT} >> RELEASE.local && \
+    echo 'ASYN=$(SUPPORT)/asyn-R4-41' >> RELEASE.local && \
+    echo 'BUSY=$(SUPPORT)/busy-R1-7-3' >> RELEASE.local && \
+    echo 'CALC=$(SUPPORT)/calc-R3-7-4' >> RELEASE.local && \
+    echo 'SSCAN=$(SUPPORT)/sscan-R2-11-4' >> RELEASE.local && \
+    echo 'AUTOSAVE=$(SUPPORT)/autosave-R5-10-2' >> RELEASE.local && \
+    echo 'AREA_DETECTOR='${AREA_DETECTOR} >> RELEASE.local && \
+    echo 'ADBINARIES=$(AREA_DETECTOR)/ADBinaries' >> RELEASE.local && \
+    echo 'ADCORE=$(AREA_DETECTOR)/ADCore' >> RELEASE.local
+
+RUN ls ${ADZMQ}/configure
+RUN cat RELEASE.local
 
 ENV IOCADZMQ=${AREA_DETECTOR}/ADZMQ/iocs/zmqIOC/iocBoot/iocZMQ
 RUN ln -s ${IOCADZMQ} ${SUPPORT}/iocZMQ && \
