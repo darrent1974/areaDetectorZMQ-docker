@@ -9,11 +9,6 @@ services:
         - AREA_DETECTOR_REPO=https://github.com/areaDetector/areaDetector.git
         - AREA_DETECTOR_REPO_TAG=master
         - ZMQ_REPO=https://github.com/darrent1974/ADZMQ.git
-        - ZMQ_TAG=master
-    environment: 
-      - AD_PREFIX="ADSIM:"
-    #volumes:
-    #  - ./ophyd_AD_test:/tmp/ophyd_AD_test/
-    
+        - ZMQ_TAG=master  
     command: bash -c "/opt/runADSimDetector.sh" # && tail -f /dev/null"
     tty: true
