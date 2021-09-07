@@ -1,6 +1,4 @@
 [submodule "ADZMQ"]
 	path = ADZMQ
 	url = https://github.com/darrent1974/ADZMQ.git
-[submodule "ADPluginEdge"]
-	path = ADPluginEdge
-	url = https://github.com/areaDetector/ADPluginEdge.git
+
