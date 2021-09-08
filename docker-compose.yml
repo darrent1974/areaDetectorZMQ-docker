@@ -11,4 +11,6 @@ services:
         - ZMQ_REPO=https://github.com/darrent1974/ADZMQ.git
         - ZMQ_TAG=master  
     command: bash -c "/opt/runADSimDetector.sh" # && tail -f /dev/null"
+    volumes:
+      - ./autosave:/opt/iocSimDetector/autosave
     tty: true

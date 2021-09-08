@@ -69,33 +69,12 @@ RUN git submodule update --init --recursive ADCore && \
 RUN git clone -b ${ZMQ_TAG} --single-branch ${ZMQ_REPO}
 
 ENV IOCADSIMDETECTOR=${AREA_DETECTOR}/ADSimDetector/iocs/simDetectorIOC/iocBoot/iocSimDetector
-RUN ln -s ${IOCADSIMDETECTOR} ${SUPPORT}/iocSimDetector
-RUN ln -s ${IOCADSIMDETECTOR} /opt/iocSimDetector
-COPY ./IOCs/simDetectorIOC/run_simDetectorIOC ${IOCADSIMDETECTOR}/run
-COPY ./IOCs/simDetectorIOC/runADSimDetector.sh /opt/
-RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADSIMDETECTOR}/
+RUN ln -s ${IOCADSIMDETECTOR} ${SUPPORT}/iocSimDetector && \
+    ln -s ${IOCADSIMDETECTOR} /opt/iocSimDetector
 
 # Execute script to modify AD and configure for use with ZMQ
-COPY AD_edits.sh /tmp/
-RUN /tmp/AD_edits.sh
-
-# Create local files in ADZMQ configure
-#WORKDIR ${ADZMQ}/configure
-#RUN echo 'SUPPORT=/opt/synApps/support' >> RELEASE.local && \
-#    echo 'EPICS_BASE='${EPICS_ROOT} >> RELEASE.local && \
-#    echo 'ASYN=$(SUPPORT)/asyn-R4-41' >> RELEASE.local && \
-#    echo 'BUSY=$(SUPPORT)/busy-R1-7-3' >> RELEASE.local && \
-#    echo 'CALC=$(SUPPORT)/calc-R3-7-4' >> RELEASE.local && \
-#    echo 'SSCAN=$(SUPPORT)/sscan-R2-11-4' >> RELEASE.local && \
-#    echo 'AUTOSAVE=$(SUPPORT)/autosave-R5-10-2' >> RELEASE.local && \
-#    echo 'AREA_DETECTOR='${AREA_DETECTOR} >> RELEASE.local && \
-#    echo 'ADBINARIES=$(AREA_DETECTOR)/ADBinaries' >> RELEASE.local && \
-#    echo 'ADCORE=$(AREA_DETECTOR)/ADCore' >> RELEASE.local
-
-#ENV IOCADZMQ=${AREA_DETECTOR}/ADZMQ/iocs/zmqIOC/iocBoot/iocZMQ
-#RUN ln -s ${IOCADZMQ} ${SUPPORT}/iocZMQ && \
-#    ln -s ${IOCADZMQ} /opt/iocZMQ
-#RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADZMQ}/
+COPY AD_build_edits.sh /tmp/
+RUN /tmp/AD_build_edits.sh
 
 WORKDIR ${SUPPORT}
 RUN make release && \
@@ -104,7 +83,16 @@ RUN make release && \
 
 # Build it all
 WORKDIR ${AREA_DETECTOR}
-#RUN make -j8 all 2>&1
+RUN make -j8 all 2>&1
+
+COPY ./IOCs/simDetectorIOC/run_simDetectorIOC ${IOCADSIMDETECTOR}/run
+COPY ./IOCs/simDetectorIOC/runADSimDetector.sh /opt/
+COPY ./IOCs/simDetectorIOC/auto_settings.req ${IOCADSIMDETECTOR}/ 
+RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADSIMDETECTOR}/
+
+# Execute script to modify simDetectorIOC startup commands
+COPY simDetectorIOC_edits.sh /tmp
+RUN /tmp/simDetectorIOC_edits.sh
 
 WORKDIR ${SUPPORT}
 CMD ["/bin/bash"]

@@ -56,11 +56,3 @@ sed -i '/^ADSIMDETECTOR=.*/a ADZMQ=$(AREA_DETECTOR)\/ADZMQ' RELEASE
 cd ${AREA_DETECTOR}/ADSimDetector/iocs/simDetectorIOC/simDetectorApp/src
 sed -i '/^$(PROD_NAME)_DBD.*/a $(PROD_NAME)_DBD += ADZMQSupport.dbd' Makefile
 sed -i '/^PROD_LIBS +=.*/a PROD_LIBS += ADZMQ' Makefile
-
-# Add ADZMQ plugin & server to IOC startup script
-cd ${IOCADSIMDETECTOR}
-sed -i '/^set_requestfile_path("$(ADSIMDETECTOR)\/simDetectorApp\/Db").*/i \
-ZMQDriverConfig("ZMQ1", "tcp://127.0.0.1:5432", -1, -1) \
-dbLoadRecords("$(ADCORE)\/ADApp\/Db\/ADBase.template",     "P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1") \
-NDZMQConfigure("NDZMQ1", "tcp://*:1234", 3, 0, "ZMQ1", 0, -1, -1) \
-dbLoadRecords("$(ADCORE)\/ADApp\/Db\/NDPluginBase.template","P=$(PREFIX),R=ZMQ1:,PORT=NDZMQ1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),NDARRAY_ADDR=0")\n' st_base.cmd
