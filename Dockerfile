@@ -88,11 +88,9 @@ RUN make -j8 all 2>&1
 COPY ./IOCs/simDetectorIOC/run_simDetectorIOC ${IOCADSIMDETECTOR}/run
 COPY ./IOCs/simDetectorIOC/runADSimDetector.sh /opt/
 COPY ./IOCs/simDetectorIOC/auto_settings.req ${IOCADSIMDETECTOR}/ 
+COPY ./IOCs/simDetectorIOC/ADZMQPlugin.cmd ${IOCADSIMDETECTOR}/
+COPY ./IOCs/simDetectorIOC/st_base.cmd ${IOCADSIMDETECTOR}/
 RUN cp ${XXX}/iocBoot/iocxxx/softioc/in-screen.sh ${IOCADSIMDETECTOR}/
-
-# Execute script to modify simDetectorIOC startup commands
-COPY simDetectorIOC_edits.sh /tmp
-RUN /tmp/simDetectorIOC_edits.sh
 
 WORKDIR ${SUPPORT}
 CMD ["/bin/bash"]

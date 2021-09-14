@@ -1,5 +1,38 @@
 version: "3"
 services:
+  ophyd-bluesky:
+    image: dpi/ophyd-bluesky:latest
+    volumes:
+      - ./notebooks:/opt/notebooks
+    ports: 
+      - 8888:8888
+    command: "jupyter lab --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root --NotebookApp.token=''"
+    depends_on: 
+      - "area-detector-zmq"
+    tty: true
+
+  device:
+    image: dpi/zmq-python-docker:3.6
+    environment:      
+      - ZMQ_PRODUCER_DEVICE_ADDRESS=tcp://*:5559
+      - ZMQ_WORKER_DEVICE_ADDRESS=tcp://*:5560
+    volumes:
+      - ./test:/app
+    command: "python device_test.py"
+    depends_on: 
+      - "area-detector-zmq"
+      - "consumer"
+    tty: true
+
+  consumer:
+    image: dpi/zmq-python-docker:3.6
+    environment:      
+      - ZMQ_WORKER_ADDRESS=tcp://device:5560
+    volumes:
+      - ./test:/app
+    command: "python consumer_test.py"  
+    tty: true
+    
   area-detector-zmq:
     image: dpi/area-detector-zmq
     build:
@@ -10,7 +43,19 @@ services:
         - AREA_DETECTOR_REPO_TAG=master
         - ZMQ_REPO=https://github.com/darrent1974/ADZMQ.git
         - ZMQ_TAG=master  
-    command: bash -c "/opt/runADSimDetector.sh" # && tail -f /dev/null"
+    environment:
+      - ZMQ_PRODUCER_ADDRESS="tcp://device:5559 PUSH"  
+      - ADZMQ_QUEUE_SIZE=50
+      - ADZMQ_BLOCKING_CALLBACKS=1
+      - SIMDETECTOR_IOC_MAX_XSIZE=2048
+      - SIMDETECTOR_IOC_MAX_YSIZE=2048
+      - SIMDETECTOR_IOC_DATATYPE=3 # uint16
+    cap_add:
+       - SYS_PTRACE
+    security_opt:
+       - seccomp:unconfined               
+    command: bash -c "/opt/runADSimDetector.sh && tail -f /dev/null"
     volumes:
       - ./autosave:/opt/iocSimDetector/autosave
+      #- ./ADZMQ:/opt/synApps/support/areaDetector-master/ADZMQ
     tty: true
