@@ -34,6 +34,8 @@ dbLoadRecords("$(ADSIMDETECTOR)/db/simDetector.template","P=$(PREFIX),R=cam1:,PO
 
 # Load all other plugins using commonPlugins.cmd
 #< $(ADCORE)/iocBoot/commonPlugins.cmd
+
+# Load ADZMQ custom plugin
 < ADZMQPlugin.cmd
 
 set_requestfile_path("$(ADSIMDETECTOR)/simDetectorApp/Db")
