@@ -33,7 +33,7 @@ simDetectorConfig("$(PORT)", $(XSIZE), $(YSIZE), ${SIMDETECTOR_IOC_DATATYPE}, -1
 dbLoadRecords("$(ADSIMDETECTOR)/db/simDetector.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 
 # Load all other plugins using commonPlugins.cmd
-< $(ADCORE)/iocBoot/commonPlugins.cmd
+#< $(ADCORE)/iocBoot/commonPlugins.cmd
 < ADZMQPlugin.cmd
 
 set_requestfile_path("$(ADSIMDETECTOR)/simDetectorApp/Db")
