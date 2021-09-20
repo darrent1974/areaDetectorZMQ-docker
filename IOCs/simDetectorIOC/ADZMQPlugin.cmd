@@ -1,6 +1,6 @@
 # Configure the ZMQ plugin using env var
 NDZMQConfigure("NDZMQ1", "$(ZMQ_PRODUCER_ADDRESS)", $(ADZMQ_QUEUE_SIZE), $(ADZMQ_BLOCKING_CALLBACKS), "$(PORT)", 0, -1, -1)
-dbLoadRecords("$(ADCORE)/ADApp/Db/NDPluginBase.template","P=$(PREFIX),R=ZMQ1:,PORT=NDZMQ1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),NDARRAY_ADDR=0")
+dbLoadRecords("$(ADZMQ)/zmqApp/Db/ADZMQ.template","P=$(PREFIX),R=ZMQ1:,PORT=NDZMQ1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),NDARRAY_ADDR=0")
 
 # Enabled tracing on the plugin
 asynSetTraceMask("NDZMQ1",0,ASYN_TRACE_ERROR+ASYN_TRACE_WARNING)
