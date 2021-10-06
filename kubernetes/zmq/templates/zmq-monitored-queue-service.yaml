@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: zmq-monitored-queue
+  name: zmq-monitored-queue
+spec:
+  ports:
+    - name: "5559"
+      port: 5559
+      targetPort: 5559
+    - name: "5560"
+      port: 5560
+      targetPort: 5560      
+  selector:
+    io.kompose.service: zmq-monitored-queue
+  type: NodePort
+status:
+  loadBalancer: {}

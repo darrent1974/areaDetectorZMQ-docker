@@ -1,0 +1,8 @@
+name: bluesky
+description: A generated Helm Chart for MCT from Skippbox Kompose
+version: 0.0.1
+apiVersion: v1
+keywords:
+  - bluesky
+sources:
+home:

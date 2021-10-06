@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-volume-test
+  labels:
+    type: local
+    for_app: pv-volume-test
+spec:
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  capacity:
+    storage: 10M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/test"

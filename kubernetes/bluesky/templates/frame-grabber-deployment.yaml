@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    service.name: frame-grabber
+  name: frame-grabber
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service.name: frame-grabber
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service.name: frame-grabber
+    spec:
+      containers:
+        - args:
+            - python
+            - frame-grabber.py
+          env:
+            - name: ZMQ_SUBSCRIBER_ADDRESS
+              value: tcp://area-detector-zmq:5559
+          image: dpi/zmq-python-docker:3.6
+          imagePullPolicy: Never
+          name: frame-grabber
+          resources: {}
+          tty: true
+          volumeMounts:
+            - name: persistent-storage-frame-grabber
+              mountPath: /app          
+      restartPolicy: Always
+      volumes:
+      - name: persistent-storage-frame-grabber
+        persistentVolumeClaim:
+          claimName: pv-claim-test      
+status: {}

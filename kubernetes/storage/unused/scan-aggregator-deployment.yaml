@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    service.name: scan-aggregator
+  name: scan-aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service.name: scan-aggregator
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service.name: scan-aggregator
+    spec:
+      containers:
+        - args:
+            - python
+            - scan-aggregator.py
+          env:
+            - name: ZMQ_WORKER_ADDRESS
+              value: tcp://zmq-streamer:5560
+          image: dpi/zmq-python-docker:3.6
+          imagePullPolicy: Never
+          name: scan-aggregator
+          resources: {}
+          tty: true
+          volumeMounts:
+            - name: persistent-storage-scan-aggregator
+              mountPath: /app          
+      restartPolicy: Always
+      volumes:
+      - name: persistent-storage-scan-aggregator
+        persistentVolumeClaim:
+          claimName: pv-claim-test      
+status: {}

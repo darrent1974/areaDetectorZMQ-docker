@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pv-claim-jupyter-notebooks
+spec:
+  selector:
+    matchLabels:
+      for_app: pv-volume-jupyter-notebooks
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10M
+  volumeName: pv-volume-jupyter-notebooks      

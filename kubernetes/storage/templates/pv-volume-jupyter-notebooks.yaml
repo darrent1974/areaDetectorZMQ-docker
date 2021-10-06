@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-volume-jupyter-notebooks
+  labels:
+    type: local
+    for_app: pv-volume-jupyter-notebooks
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/jupyter-notebooks"

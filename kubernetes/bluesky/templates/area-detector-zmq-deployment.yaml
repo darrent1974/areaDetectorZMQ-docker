@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: area-detector-zmq
+  name: area-detector-zmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: area-detector-zmq
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: area-detector-zmq
+    spec:
+      containers:
+        - args:
+            - bash
+            - -c
+            - /opt/runADSimDetector.sh && tail -f /dev/null
+          env:
+            - name: ADZMQ_BLOCKING_CALLBACKS
+              value: "1"
+            - name: ADZMQ_QUEUE_SIZE
+              value: "50"
+            - name: SIMDETECTOR_IOC_DATATYPE
+              value: "3"
+            - name: SIMDETECTOR_IOC_MAX_XSIZE
+              value: "2048"
+            - name: SIMDETECTOR_IOC_MAX_YSIZE
+              value: "2048"
+            - name: ZMQ_PRODUCER_ADDRESS
+              value: '"tcp://*:5559 PUB"'
+          image: dpi/area-detector-zmq
+          imagePullPolicy: Never
+          name: area-detector-zmq
+          resources: {}
+          securityContext:
+            capabilities:
+              add:
+                - SYS_PTRACE
+          tty: true
+      restartPolicy: Always
+status: {}

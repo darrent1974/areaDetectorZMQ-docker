@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: zmq-monitored-queue
+  name: zmq-monitored-queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zmq-monitored-queue
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: zmq-monitored-queue
+    spec:
+      containers:
+        - args:
+            - python
+            - monitored-queue-device.py      
+          env:
+            - name: ZMQ_PRODUCER_DEVICE_ADDRESS
+              value: tcp://*:5559
+            - name: ZMQ_WORKER_DEVICE_ADDRESS
+              value: tcp://*:5560
+          image: dpi/zmq-python-docker:3.6
+          imagePullPolicy: Never
+          name: zmq-monitored-queue
+          ports:
+            - containerPort: 5559
+            - containerPort: 5560
+          resources: {} 
+          tty: true
+          volumeMounts:
+            - name: persistent-storage-zmq-monitored-queue
+              mountPath: /app
+      restartPolicy: Always
+      volumes:
+      - name: persistent-storage-zmq-monitored-queue
+        persistentVolumeClaim:
+          claimName: pv-claim-test
+status: {}

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ophyd-bluesky
+  name: ophyd-bluesky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ophyd-bluesky
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: ophyd-bluesky
+    spec:
+      containers:
+        - args:
+            - jupyter
+            - lab
+            - --notebook-dir=/opt/notebooks
+            - --ip=*
+            - --port=8888
+            - --no-browser
+            - --allow-root
+            - --NotebookApp.token=
+          image: dpi/ophyd-bluesky
+          imagePullPolicy: Never
+          name: ophyd-bluesky
+          ports:
+            - containerPort: 8888
+          resources: {}
+          tty: true
+          volumeMounts:
+            - name: persistent-storage-jupyter-notebooks
+              mountPath: /opt/notebooks         
+      restartPolicy: Always
+      volumes:
+      - name: persistent-storage-jupyter-notebooks
+        persistentVolumeClaim:
+          claimName: pv-claim-jupyter-notebooks      
+status: {}
