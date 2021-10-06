@@ -6,17 +6,16 @@ import os
 import numpy as np
 import json
 
-
-def consumer():
+def scan_aggregator():
     ZMQ_WORKER_ADDRESS = os.environ["ZMQ_WORKER_ADDRESS"]
     worker_id = random.randrange(1, 10005)
 
-    print(f"Bringin up worker: #{worker_id}")
+    print(f"Bringing up scan-aggregator: #{worker_id}")
 
     context = zmq.Context()
 
     # receive work
-    worker_receiver = context.socket(zmq.PULL)
+    worker_receiver = context.socket(zmq.SUB)
     worker_receiver.connect(ZMQ_WORKER_ADDRESS)
 
     while True:
@@ -32,9 +31,11 @@ def consumer():
 
         # receive data
         data = np.frombuffer(worker_receiver.recv(), dtype=str(info['type']))
-        #data.reshape(info['shape'])
+
+        # Reshape data into 2D image        
+        data.shape = info['shape']
+
         #print(data.sum(),data)
         print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S: "), header)
 
-
-consumer()
+scan_aggregator()

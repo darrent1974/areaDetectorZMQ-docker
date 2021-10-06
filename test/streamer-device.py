@@ -10,6 +10,7 @@ def main():
 
     try:
         context = zmq.Context()
+        
         # Socket facing clients
         producer = context.socket(zmq.PULL)
         producer.bind(ZMQ_PRODUCER_DEVICE_ADDRESS)
